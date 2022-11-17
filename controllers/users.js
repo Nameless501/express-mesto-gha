@@ -11,6 +11,10 @@ const getUsers = (req, res) => {
 
 const findUser = (req, res) => {
   User.findById(req.params.userId)
+    .orFail(() => {
+      const error = new NotFoundError();
+      throw error;
+    })
     .then((user) => res.send({ data: user }))
     .catch((err) => handleError(err, res));
 };
