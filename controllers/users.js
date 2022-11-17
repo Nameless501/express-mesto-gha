@@ -1,15 +1,18 @@
 const User = require('../models/user');
+const { handleError } = require('../utils/utils');
+const { NotFoundError } = require('../errors/NotFound');
+const { BadRequestError } = require('../errors/BadRequest');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 const findUser = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 const createUser = (req, res) => {
@@ -17,31 +20,43 @@ const createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
 
+  if (!name || !about) {
+    const error = new BadRequestError();
+    handleError(error, res);
+    return;
+  }
+
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .orFail(() => {
+      const error = new NotFoundError();
+      throw error;
+    })
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Некорректные данные' });
-      } else if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Данные не найдены' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
-      }
-    });
+    .catch((err) => handleError(err, res));
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
+  if (!avatar) {
+    const error = new BadRequestError();
+    handleError(error, res);
+    return;
+  }
+
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .orFail(() => {
+      const error = new NotFoundError();
+      throw error;
+    })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 module.exports = {

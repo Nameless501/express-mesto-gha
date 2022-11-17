@@ -1,27 +1,37 @@
 const Card = require('../models/card');
+const { handleError } = require('../utils/utils');
+const { NotFoundError } = require('../errors/NotFound');
 
 const getCards = (req, res) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
 
-  Card.create({ name, link, owner })
-    .populate(['owner', 'likes'])
-    .then((card) => res.send({ data: card }))
-    .catch((err) => console.log(err.name));
+  Card.create({ name, link, owner: req.user._id }, (err, newCard) => {
+    if (err) {
+      handleError(err, res);
+      return;
+    }
+    Card.findById(newCard._id)
+      .populate(['owner', 'likes'])
+      .then((card) => res.send({ data: card }))
+      .catch((e) => handleError(e, res));
+  });
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .populate(['owner', 'likes'])
+    .orFail(() => {
+      const error = new NotFoundError();
+      throw error;
+    })
     .then((card) => res.send({ data: card }))
-    .catch((err) => console.log(err.message));
+    .catch((err) => handleError(err, res));
 };
 
 const setCardLike = (req, res) => {
@@ -30,9 +40,13 @@ const setCardLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(() => {
+      const error = new NotFoundError();
+      throw error;
+    })
     .populate(['owner', 'likes'])
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 const setCardDislike = (req, res) => {
@@ -41,9 +55,13 @@ const setCardDislike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(() => {
+      const error = new NotFoundError();
+      throw error;
+    })
     .populate(['owner', 'likes'])
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => handleError(err, res));
 };
 
 module.exports = {
