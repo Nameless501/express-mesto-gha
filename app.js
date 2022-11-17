@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { NOT_FOUND_CODE, NOT_FOUND_MESSAGE } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -23,7 +24,7 @@ app.use('/users', require('./routers/users'));
 app.use('/cards', require('./routers/cards'));
 
 app.use((req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+  res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_MESSAGE });
 });
 
 app.listen(PORT);
