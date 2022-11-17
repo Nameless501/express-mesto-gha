@@ -20,7 +20,7 @@ const handleError = (err, res) => {
     res.status(BAD_REQUEST_CODE).send({ message: BAD_REQUEST_MESSAGE });
   } else if (err.name === 'CastError') {
     handleLog(err);
-    res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_MESSAGE });
+    res.status(BAD_REQUEST_CODE).send({ message: NOT_FOUND_MESSAGE });
   } else {
     handleLog(err);
     res.status(DEFAULT_ERROR_CODE).send({ message: DEFAULT_ERROR_MESSAGE });
