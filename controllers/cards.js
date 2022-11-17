@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const { handleError } = require('../utils/utils');
-const { NotFoundError } = require('../errors/NotFound');
+const { BadRequestError } = require('../errors/BadRequest');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -27,7 +27,7 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => {
-      const error = new NotFoundError();
+      const error = new BadRequestError();
       throw error;
     })
     .then((card) => res.send({ data: card }))
@@ -41,7 +41,7 @@ const setCardLike = (req, res) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      const error = new NotFoundError();
+      const error = new BadRequestError();
       throw error;
     })
     .populate(['owner', 'likes'])
@@ -56,7 +56,7 @@ const setCardDislike = (req, res) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      const error = new NotFoundError();
+      const error = new BadRequestError();
       throw error;
     })
     .populate(['owner', 'likes'])
