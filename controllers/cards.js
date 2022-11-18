@@ -1,6 +1,7 @@
 const Card = require('../models/card');
-const { handleError } = require('../utils/utils');
-const { NotFoundError } = require('../errors/NotFound');
+const { handleError, handleLike, handleDislike } = require('../utils/utils');
+const NotFoundError = require('../errors/NotFound');
+const { CREATED_CODE } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -19,7 +20,7 @@ const createCard = (req, res) => {
     }
     Card.findById(newCard._id)
       .populate(['owner', 'likes'])
-      .then((card) => res.send({ data: card }))
+      .then((card) => res.status(CREATED_CODE).send({ data: card }))
       .catch((e) => handleError(e, res));
   });
 };
@@ -27,41 +28,18 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => {
-      const error = new NotFoundError();
-      throw error;
+      throw new NotFoundError();
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => handleError(err, res));
 };
 
 const setCardLike = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true, runValidators: true },
-  )
-    .orFail(() => {
-      const error = new NotFoundError();
-      throw error;
-    })
-    .populate(['owner', 'likes'])
-    .then((card) => res.send({ data: card }))
-    .catch((err) => handleError(err, res));
+  handleLike(Card, req, res);
 };
 
 const setCardDislike = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true, runValidators: true },
-  )
-    .orFail(() => {
-      const error = new NotFoundError();
-      throw error;
-    })
-    .populate(['owner', 'likes'])
-    .then((card) => res.send({ data: card }))
-    .catch((err) => handleError(err, res));
+  handleDislike(Card, req, res);
 };
 
 module.exports = {
