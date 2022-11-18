@@ -11,7 +11,7 @@ function handleLog(err) {
 }
 
 const handleError = (err, res) => {
-  if (err.name === 'BadRequestError' || err.name === 'NotFoundError') {
+  if (err.name === 'NotFoundError') {
     res.status(err.code).send({ message: err.message });
   } else if (err.name === 'ValidationError') {
     res.status(BAD_REQUEST_CODE).send({ message: BAD_REQUEST_MESSAGE });
