@@ -4,7 +4,7 @@ const {
   BAD_REQUEST_MESSAGE,
   DEFAULT_ERROR_MESSAGE,
 } = require('./constants');
-const { NotFoundError } = require('../errors/NotFound');
+const NotFoundError = require('../errors/NotFound');
 
 function handleLog(err) {
   console.log(err.message);
