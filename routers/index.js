@@ -1,4 +1,4 @@
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const router = require('express').Router();
 const NotFoundError = require('../errors/NotFoundError');
 const { login, createUser } = require('../controllers/users');
@@ -41,6 +41,7 @@ router.post(
 router.use('/users', auth, require('./users'));
 router.use('/cards', auth, require('./cards'));
 
+router.use(errors());
 router.use(() => {
   throw new NotFoundError();
 });
