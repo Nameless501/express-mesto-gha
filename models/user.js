@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const DataAccessError = require('../errors/DataAccessError');
 const NotFoundError = require('../errors/NotFoundError');
-const { LINK_REG_EXP } = require('../utils/constants');
 
 const {
   DEFAULT_USER_NAME,
@@ -28,9 +27,6 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: DEFAULT_AVATAR_LINK,
-      validate: {
-        validator: (link) => LINK_REG_EXP.test(link),
-      },
     },
     email: {
       type: String,

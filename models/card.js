@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const NotFoundError = require('../errors/NotFoundError');
-const { LINK_REG_EXP } = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema(
   {
@@ -13,9 +12,6 @@ const cardSchema = new mongoose.Schema(
     link: {
       type: String,
       required: true,
-      validate: {
-        validator: (link) => LINK_REG_EXP.test(link),
-      },
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,

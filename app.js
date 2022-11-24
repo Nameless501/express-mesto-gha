@@ -16,6 +16,7 @@ mongoose.connect(DB_URL);
 
 app.use('/', require('./routers/index'));
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   handleError(err, res);
 });

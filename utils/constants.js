@@ -32,7 +32,7 @@ const DEFAULT_USER_ABOUT = 'Исследователь';
 
 const DEFAULT_AVATAR_LINK = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png';
 
-const LINK_REG_EXP = /^https?:\/\/(www\.)?[\w\d@:%~#=.+-/]+/gi;
+const LINK_REG_EXP = /^https?:\/\/(www\.)?[\w\d@:%~#=.+-/]+$/;
 
 const SECRET_KEY = 'some-secret-key';
 
