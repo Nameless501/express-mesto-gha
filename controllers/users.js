@@ -9,7 +9,15 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password, next)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
-      res.cookie('jwt', token, { httpOnly: true }).end();
+      res.cookie('jwt', token, { httpOnly: true }).send({
+        data: {
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+          _id: user._id,
+        },
+      });
     })
     .catch(next);
 };
