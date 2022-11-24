@@ -1,45 +1,53 @@
 const Card = require('../models/card');
-const { handleError, handleLike, handleDislike } = require('../utils/utils');
-const NotFoundError = require('../errors/NotFound');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const { CREATED_CODE } = require('../utils/constants');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => handleError(err, res));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id }, (err, newCard) => {
     if (err) {
-      handleError(err, res);
+      next(err);
       return;
     }
     Card.findById(newCard._id)
       .populate(['owner', 'likes'])
       .then((card) => res.status(CREATED_CODE).send({ data: card }))
-      .catch((e) => handleError(e, res));
+      .catch(next);
   });
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+const deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
     .orFail(() => {
       throw new NotFoundError();
     })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => handleError(err, res));
+    .then((card) => {
+      const isOwn = card.owner.toString() === req.user._id;
+      if (isOwn) {
+        card.remove();
+        res.send({ data: card });
+      } else {
+        throw new ForbiddenError();
+      }
+    })
+    .catch(next);
 };
 
-const setCardLike = (req, res) => {
-  handleLike(Card, req, res);
+const setCardLike = (req, res, next) => {
+  Card.handleLikeToggle(req, res, next, '$addToSet');
 };
 
-const setCardDislike = (req, res) => {
-  handleDislike(Card, req, res);
+const setCardDislike = (req, res, next) => {
+  Card.handleLikeToggle(req, res, next, '$pull');
 };
 
 module.exports = {

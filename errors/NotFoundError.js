@@ -2,8 +2,9 @@ const {
   NOT_FOUND_CODE,
   NOT_FOUND_MESSAGE,
 } = require('../utils/constants');
+const CustomError = require('./CustomError');
 
-class NotFoundError extends Error {
+class NotFoundError extends CustomError {
   constructor() {
     super();
     this.name = 'NotFoundError';

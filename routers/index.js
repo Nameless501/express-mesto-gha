@@ -1,11 +1,48 @@
+const { celebrate, Joi } = require('celebrate');
 const router = require('express').Router();
-const { NOT_FOUND_CODE, NOT_FOUND_MESSAGE } = require('../utils/constants');
+const NotFoundError = require('../errors/NotFoundError');
+const { login, createUser } = require('../controllers/users');
+const auth = require('../middlewares/auth');
 
-router.use('/users', require('./users'));
-router.use('/cards', require('./cards'));
+router.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string()
+        .email()
+        .required(),
+      password: Joi.string()
+        .required(),
+    }),
+  }),
+  login,
+);
+router.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string()
+        .min(2)
+        .max(30),
+      about: Joi.string()
+        .min(2)
+        .max(30),
+      avatar: Joi.string(),
+      email: Joi.string()
+        .email()
+        .required(),
+      password: Joi.string()
+        .required(),
+    }),
+  }),
+  createUser,
+);
 
-router.use((req, res) => {
-  res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_MESSAGE });
+router.use('/users', auth, require('./users'));
+router.use('/cards', auth, require('./cards'));
+
+router.use(() => {
+  throw new NotFoundError();
 });
 
 module.exports = router;
