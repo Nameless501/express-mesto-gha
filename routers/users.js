@@ -7,6 +7,7 @@ const {
   updateProfile,
   updateAvatar,
 } = require('../controllers/users');
+const { LINK_REG_EXP } = require('../utils/constants');
 
 router.get('/', getUsers);
 router.get('/me', getCurrentUser);
@@ -39,7 +40,9 @@ router.patch(
   '/me/avatar',
   celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string().required(),
+      avatar: Joi.string()
+        .required()
+        .pattern(LINK_REG_EXP),
     }),
   }),
   updateAvatar,
