@@ -1,31 +1,16 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const DataAccessError = require('../errors/DataAccessError');
 const NotFoundError = require('../errors/NotFoundError');
 const { CREATED_CODE } = require('../utils/constants');
 const { handleError } = require('../utils/utils');
 
 const { SECRET_KEY = 'some-secret-key' } = process.env;
 
-function findUserByCredentials(model, email, password) {
-  return model.findOne({ email }).select('+password')
-    .orFail(() => {
-      throw new DataAccessError();
-    })
-    .then((user) => bcrypt.compare(password, user.password)
-      .then((matched) => {
-        if (!matched) {
-          throw new DataAccessError();
-        }
-        return user;
-      }));
-}
-
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  findUserByCredentials(User, email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res.cookie('jwt', token, { httpOnly: true }).send({

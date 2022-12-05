@@ -1,5 +1,7 @@
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const validator = require('validator');
+const DataAccessError = require('../errors/DataAccessError');
 
 const {
   DEFAULT_USER_NAME,
@@ -37,6 +39,23 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       select: false,
+    },
+  },
+  {
+    statics: {
+      findUserByCredentials(email, password) {
+        return this.findOne({ email }).select('+password')
+          .orFail(() => {
+            throw new DataAccessError();
+          })
+          .then((user) => bcrypt.compare(password, user.password)
+            .then((matched) => {
+              if (!matched) {
+                throw new DataAccessError();
+              }
+              return user;
+            }));
+      },
     },
   },
 );
