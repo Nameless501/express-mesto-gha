@@ -31,10 +31,9 @@ const deleteCard = (req, res, next) => {
       throw new NotFoundError();
     })
     .then((card) => {
-      const isOwn = card.owner.toString() === req.user._id;
-      if (isOwn) {
-        card.remove();
-        res.send({ data: card });
+      if (card.owner.toString() === req.user._id) {
+        card.remove()
+          .then(() => res.send({ data: card }));
       } else {
         throw new ForbiddenError();
       }

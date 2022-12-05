@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { CREATED_CODE, SECRET_KEY } = require('../utils/constants');
+const { CREATED_CODE } = require('../utils/constants');
+
+const { SECRET_KEY = 'some-secret-key' } = process.env;
 
 const login = (req, res, next) => {
   const { email, password } = req.body;

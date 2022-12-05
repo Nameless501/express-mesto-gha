@@ -2,9 +2,8 @@ const {
   FORBIDDEN_CODE,
   FORBIDDEN_MESSAGE,
 } = require('../utils/constants');
-const CustomError = require('./CustomError');
 
-class ForbiddenError extends CustomError {
+class ForbiddenError extends Error {
   constructor() {
     super();
     this.name = 'ForbiddenError';

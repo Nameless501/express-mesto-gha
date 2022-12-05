@@ -1,4 +1,3 @@
-const CustomError = require('../errors/CustomError');
 const {
   BAD_REQUEST_CODE,
   DEFAULT_ERROR_CODE,
@@ -12,9 +11,9 @@ function handleLog(err) {
   console.log(err.message);
 }
 
-const handleError = (err, res) => {
-  if (err instanceof CustomError) {
-    err.sendError(res);
+const handleError = (err, req, res, next) => {
+  if (err.name === 'DataAccessError' || err.name === 'ForbiddenError' || err.name === 'NotFoundError') {
+    res.status(err.code).send({ message: err.message });
   } else if (err.name === 'ValidationError') {
     res.status(BAD_REQUEST_CODE).send({ message: BAD_REQUEST_MESSAGE });
   } else if (err.name === 'CastError') {

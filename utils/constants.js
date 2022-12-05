@@ -34,8 +34,6 @@ const DEFAULT_AVATAR_LINK = 'https://pictures.s3.yandex.net/resources/jacques-co
 
 const LINK_REG_EXP = /^https?:\/\/(www\.)?[\w\d@:%~#=.+-/]+$/;
 
-const SECRET_KEY = 'some-secret-key';
-
 module.exports = {
   BAD_REQUEST_CODE,
   NOT_FOUND_CODE,
@@ -55,5 +53,4 @@ module.exports = {
   DEFAULT_USER_ABOUT,
   DEFAULT_AVATAR_LINK,
   LINK_REG_EXP,
-  SECRET_KEY,
 };

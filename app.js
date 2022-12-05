@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const { handleError } = require('./utils/utils');
 
@@ -16,9 +17,7 @@ mongoose.connect(DB_URL);
 
 app.use('/', require('./routers/index'));
 
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  handleError(err, res);
-});
+app.use(errors());
+app.use(handleError);
 
 app.listen(PORT);
