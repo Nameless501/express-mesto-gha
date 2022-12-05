@@ -2,6 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
+const { handleLog } = require('./utils/utils');
+const {
+  DEFAULT_ERROR_CODE,
+  DEFAULT_ERROR_MESSAGE,
+} = require('./utils/constants');
 
 const { PORT = 3000, DB_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
@@ -18,7 +23,12 @@ app.use('/', require('./routers/index'));
 
 app.use(errors());
 app.use((err, req, res, next) => {
-  res.status(err.code).send({ message: err.message });
+  if (err.code) {
+    res.status(err.code).send({ message: err.message });
+  } else {
+    handleLog(err);
+    res.status(DEFAULT_ERROR_CODE).send({ message: DEFAULT_ERROR_MESSAGE });
+  }
 });
 
 app.listen(PORT);

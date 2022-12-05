@@ -11,12 +11,14 @@ module.exports = (req, res, next) => {
 
   if (!token) {
     handleError(new DataAccessError(NEED_AUTH_MESSAGE), next);
-  } else {
-    try {
-      payload = jwt.verify(token, SECRET_KEY);
-    } catch (err) {
-      handleError(new DataAccessError(NEED_AUTH_MESSAGE), next);
-    }
+    return;
+  }
+
+  try {
+    payload = jwt.verify(token, SECRET_KEY);
+  } catch (err) {
+    handleError(new DataAccessError(NEED_AUTH_MESSAGE), next);
+    return;
   }
 
   req.user = payload;

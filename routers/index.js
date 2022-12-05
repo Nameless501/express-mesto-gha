@@ -11,8 +11,6 @@ router.use(auth);
 router.use('/users', require('./users'));
 router.use('/cards', require('./cards'));
 
-router.use(() => {
-  throw new NotFoundError();
-});
+router.use((req, res, next) => next(new NotFoundError()));
 
 module.exports = router;

@@ -3,7 +3,10 @@ const { LINK_REG_EXP } = require('./constants');
 
 const userIdValidation = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().hex().length(24),
+    userId: Joi.string()
+      .hex()
+      .length(24)
+      .required(),
   }),
 });
 
@@ -58,7 +61,10 @@ const signupValidation = celebrate({
 
 const cardIdValidation = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24),
+    cardId: Joi.string()
+      .hex()
+      .length(24)
+      .required(),
   }),
 });
 
