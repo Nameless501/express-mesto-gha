@@ -4,18 +4,19 @@ const User = require('../models/user');
 const DataAccessError = require('../errors/DataAccessError');
 const NotFoundError = require('../errors/NotFoundError');
 const { CREATED_CODE } = require('../utils/constants');
+const { handleError } = require('../utils/utils');
 
 const { SECRET_KEY = 'some-secret-key' } = process.env;
 
-function findUserByCredentials(model, email, password, next) {
+function findUserByCredentials(model, email, password) {
   return model.findOne({ email }).select('+password')
     .orFail(() => {
-      next(new DataAccessError());
+      throw new DataAccessError();
     })
     .then((user) => bcrypt.compare(password, user.password)
       .then((matched) => {
         if (!matched) {
-          next(new DataAccessError());
+          throw new DataAccessError();
         }
         return user;
       }));
@@ -24,7 +25,7 @@ function findUserByCredentials(model, email, password, next) {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  findUserByCredentials(User, email, password, next)
+  findUserByCredentials(User, email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res.cookie('jwt', token, { httpOnly: true }).send({
@@ -37,22 +38,22 @@ const login = (req, res, next) => {
         },
       });
     })
-    .catch(next);
+    .catch((err) => handleError(err, next));
 };
 
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(next);
+    .catch((err) => handleError(err, next));
 };
 
 function findUserById(model, id, res, next) {
   return model.findById(id)
     .orFail(() => {
-      next(new NotFoundError());
+      throw new NotFoundError();
     })
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch((err) => handleError(err, next));
 }
 
 const getCurrentUser = (req, res, next) => {
@@ -89,16 +90,16 @@ const createUser = (req, res, next) => {
         _id: user._id,
       },
     }))
-    .catch(next);
+    .catch((err) => handleError(err, next));
 };
 
 function updateUserData(model, id, res, next, params) {
   return model.findByIdAndUpdate(id, params, { new: true, runValidators: true })
     .orFail(() => {
-      next(new NotFoundError());
+      throw new NotFoundError();
     })
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch((err) => handleError(err, next));
 }
 
 const updateProfile = (req, res, next) => {

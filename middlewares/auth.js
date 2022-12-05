@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const DataAccessError = require('../errors/DataAccessError');
 const { NEED_AUTH_MESSAGE } = require('../utils/constants');
+const { handleError } = require('../utils/utils');
 
 const { SECRET_KEY = 'some-secret-key' } = process.env;
 
@@ -9,12 +10,12 @@ module.exports = (req, res, next) => {
   let payload;
 
   if (!token) {
-    next(new DataAccessError(NEED_AUTH_MESSAGE));
+    handleError(new DataAccessError(NEED_AUTH_MESSAGE), next);
   } else {
     try {
       payload = jwt.verify(token, SECRET_KEY);
     } catch (err) {
-      next(new DataAccessError(NEED_AUTH_MESSAGE));
+      handleError(new DataAccessError(NEED_AUTH_MESSAGE), next);
     }
   }
 

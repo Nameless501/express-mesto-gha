@@ -2,12 +2,13 @@ const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const { CREATED_CODE } = require('../utils/constants');
+const { handleError } = require('../utils/utils');
 
 const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
-    .catch(next);
+    .catch((err) => handleError(err, next));
 };
 
 const createCard = (req, res, next) => {
@@ -15,20 +16,20 @@ const createCard = (req, res, next) => {
 
   Card.create({ name, link, owner: req.user._id }, (err, newCard) => {
     if (err) {
-      next(err);
+      handleError(err, next);
       return;
     }
     Card.findById(newCard._id)
       .populate(['owner', 'likes'])
       .then((card) => res.status(CREATED_CODE).send({ data: card }))
-      .catch(next);
+      .catch((e) => handleError(e, next));
   });
 };
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail(() => {
-      next(new NotFoundError());
+      throw new NotFoundError();
     })
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
@@ -38,7 +39,7 @@ const deleteCard = (req, res, next) => {
         throw new ForbiddenError();
       }
     })
-    .catch(next);
+    .catch((err) => handleError(err, next));
 };
 
 function handleLikeToggle(model, req, res, next, action) {
@@ -52,7 +53,7 @@ function handleLikeToggle(model, req, res, next, action) {
     })
     .populate(['owner', 'likes'])
     .then((card) => res.send({ data: card }))
-    .catch(next);
+    .catch((err) => handleError(err, next));
 }
 
 const setCardLike = (req, res, next) => {
