@@ -13,7 +13,6 @@ const handleError = (err, next) => {
     if (err instanceof Error) {
       currentError = new BadRequestError();
     } else if (err.name === 'MongoServerError' && err.code === 11000) {
-      console.log(err.code)
       currentError = new ConflictError();
     }
 
