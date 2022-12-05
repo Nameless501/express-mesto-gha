@@ -9,9 +9,9 @@ const {
 const { cardIdValidation, cardDataValidation } = require('../utils/requestValidators');
 
 router.get('/', getCards);
-router.post('/', cardIdValidation, createCard);
+router.post('/', cardDataValidation, createCard);
 router.delete('/:cardId', cardDataValidation, deleteCard);
-router.put('/:cardId/likes', cardDataValidation, setCardLike);
-router.delete('/:cardId/likes', cardDataValidation, setCardDislike);
+router.put('/:cardId/likes', cardIdValidation, setCardLike);
+router.delete('/:cardId/likes', cardIdValidation, setCardDislike);
 
 module.exports = router;

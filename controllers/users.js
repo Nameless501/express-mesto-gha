@@ -1,14 +1,30 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const DataAccessError = require('../errors/DataAccessError');
+const NotFoundError = require('../errors/NotFoundError');
 const { CREATED_CODE } = require('../utils/constants');
 
 const { SECRET_KEY = 'some-secret-key' } = process.env;
 
+function findUserByCredentials(model, email, password, next) {
+  return model.findOne({ email }).select('+password')
+    .orFail(() => {
+      next(new DataAccessError());
+    })
+    .then((user) => bcrypt.compare(password, user.password)
+      .then((matched) => {
+        if (!matched) {
+          next(new DataAccessError());
+        }
+        return user;
+      }));
+}
+
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password, next)
+  findUserByCredentials(User, email, password, next)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res.cookie('jwt', token, { httpOnly: true }).send({
@@ -30,12 +46,21 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
+function findUserById(model, id, res, next) {
+  return model.findById(id)
+    .orFail(() => {
+      next(new NotFoundError());
+    })
+    .then((user) => res.send({ data: user }))
+    .catch(next);
+}
+
 const getCurrentUser = (req, res, next) => {
-  User.findUserById(req.user._id, res, next);
+  findUserById(User, req.user._id, res, next);
 };
 
 const findUser = (req, res, next) => {
-  User.findUserById(req.params.userId, res, next);
+  findUserById(User, req.params.userId, res, next);
 };
 
 const createUser = (req, res, next) => {
@@ -67,14 +92,23 @@ const createUser = (req, res, next) => {
     .catch(next);
 };
 
+function updateUserData(model, id, res, next, params) {
+  return model.findByIdAndUpdate(id, params, { new: true, runValidators: true })
+    .orFail(() => {
+      next(new NotFoundError());
+    })
+    .then((user) => res.send({ data: user }))
+    .catch(next);
+}
+
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  User.updateUserData(req.user._id, res, next, { name, about });
+  updateUserData(User, req.user._id, res, next, { name, about });
 };
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  User.updateUserData(req.user._id, res, next, { avatar });
+  updateUserData(User, req.user._id, res, next, { avatar });
 };
 
 module.exports = {

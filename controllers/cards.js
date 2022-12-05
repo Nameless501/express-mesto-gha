@@ -41,12 +41,26 @@ const deleteCard = (req, res, next) => {
     .catch(next);
 };
 
+function handleLikeToggle(model, req, res, next, action) {
+  return model.findByIdAndUpdate(
+    req.params.cardId,
+    { [action]: { likes: req.user._id } },
+    { new: true, runValidators: true },
+  )
+    .orFail(() => {
+      throw new NotFoundError();
+    })
+    .populate(['owner', 'likes'])
+    .then((card) => res.send({ data: card }))
+    .catch(next);
+}
+
 const setCardLike = (req, res, next) => {
-  Card.handleLikeToggle(req, res, next, '$addToSet');
+  handleLikeToggle(Card, req, res, next, '$addToSet');
 };
 
 const setCardDislike = (req, res, next) => {
-  Card.handleLikeToggle(req, res, next, '$pull');
+  handleLikeToggle(Card, req, res, next, '$pull');
 };
 
 module.exports = {

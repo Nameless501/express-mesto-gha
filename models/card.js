@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const NotFoundError = require('../errors/NotFoundError');
 
 const cardSchema = new mongoose.Schema(
   {
@@ -28,23 +27,6 @@ const cardSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-    },
-  },
-  {
-    statics: {
-      handleLikeToggle(req, res, next, action) {
-        return this.findByIdAndUpdate(
-          req.params.cardId,
-          { [action]: { likes: req.user._id } },
-          { new: true, runValidators: true },
-        )
-          .orFail(() => {
-            throw new NotFoundError();
-          })
-          .populate(['owner', 'likes'])
-          .then((card) => res.send({ data: card }))
-          .catch(next);
-      },
     },
   },
 );
