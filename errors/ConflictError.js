@@ -7,7 +7,7 @@ class ConflictError extends Error {
   constructor(message = EMAIL_CONFLICT_MESSAGE) {
     super(message);
     this.name = 'ConflictError';
-    this.code = EMAIL_CONFLICT_CODE;
+    this.statusCode = EMAIL_CONFLICT_CODE;
   }
 }
 

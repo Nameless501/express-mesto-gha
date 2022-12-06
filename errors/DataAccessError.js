@@ -7,7 +7,7 @@ class DataAccessError extends Error {
   constructor(message = WRONG_LOGIN_MESSAGE) {
     super(message);
     this.name = 'DataAccessError';
-    this.code = WRONG_LOGIN_CODE;
+    this.statusCode = WRONG_LOGIN_CODE;
   }
 }
 

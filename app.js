@@ -23,8 +23,8 @@ app.use('/', require('./routers/index'));
 
 app.use(errors());
 app.use((err, req, res, next) => {
-  if (err.code) {
-    res.status(err.code).send({ message: err.message });
+  if (err.statusCode) {
+    res.status(err.statusCode).send({ message: err.message });
   } else {
     handleLog(err);
     res.status(DEFAULT_ERROR_CODE).send({ message: DEFAULT_ERROR_MESSAGE });

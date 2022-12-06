@@ -8,7 +8,7 @@ class ForbiddenError extends Error {
     super();
     this.name = 'ForbiddenError';
     this.message = FORBIDDEN_MESSAGE;
-    this.code = FORBIDDEN_CODE;
+    this.statusCode = FORBIDDEN_CODE;
   }
 }
 

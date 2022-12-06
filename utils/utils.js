@@ -7,16 +7,10 @@ function handleLog(err) {
 }
 
 const handleError = (err, next) => {
-  if (err instanceof Error || err.name === 'MongoServerError') {
-    let currentError;
-
-    if (err instanceof Error) {
-      currentError = new BadRequestError();
-    } else if (err.name === 'MongoServerError' && err.code === 11000) {
-      currentError = new ConflictError();
-    }
-
-    next(currentError);
+  if (err instanceof Error) {
+    next(new BadRequestError());
+  } else if (err.name === 'MongoServerError' && err.code === 11000) {
+    next(new ConflictError());
   } else {
     next(err);
   }
